@@ -1,0 +1,48 @@
+[gd_resource type="Theme" load_steps=5 format=3 uid="uid://dbu4uqvxb4m86"]
+
+[ext_resource type="FontFile" uid="uid://pjujtt4estef" path="res://assets/Lato-Regular.ttf" id="1_qy3jy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5av6"]
+bg_color = Color(0, 0.211765, 0.305882, 1)
+border_width_left = 20
+border_width_top = 20
+border_width_right = 20
+border_width_bottom = 20
+border_color = Color(0, 0.211765, 0.305882, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f1rjq"]
+bg_color = Color(0, 0.0941176, 0.145098, 1)
+border_width_left = 20
+border_width_top = 20
+border_width_right = 20
+border_width_bottom = 20
+border_color = Color(0, 0.0941176, 0.145098, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_no2gs"]
+bg_color = Color(0, 0.254902, 0.364706, 1)
+border_width_left = 20
+border_width_top = 20
+border_width_right = 20
+border_width_bottom = 20
+border_color = Color(0, 0.254902, 0.364706, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[resource]
+default_font = ExtResource("1_qy3jy")
+default_font_size = 18
+Button/constants/outline_size = 0
+Button/font_sizes/font_size = 18
+Button/styles/hover = SubResource("StyleBoxFlat_c5av6")
+Button/styles/normal = SubResource("StyleBoxFlat_f1rjq")
+Button/styles/pressed = SubResource("StyleBoxFlat_no2gs")

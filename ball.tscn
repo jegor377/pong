@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://chbilb3a4bp11"]
+
+[ext_resource type="Script" path="res://Ball.gd" id="1_78hss"]
+[ext_resource type="Texture2D" uid="uid://b5t8pnp6tw6ty" path="res://icon.svg" id="2_87y0p"]
+[ext_resource type="AudioStream" uid="uid://dya0qpasfu74m" path="res://sfx/bounce.ogg" id="3_ojvvb"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lxykk"]
+
+[node name="Ball" type="CharacterBody2D" groups=["ball"]]
+motion_mode = 1
+script = ExtResource("1_78hss")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.17, 0.17)
+texture = ExtResource("2_87y0p")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_lxykk")
+
+[node name="BounceSFX" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_ojvvb")
+volume_db = -10.0
+pitch_scale = 1.2
+bus = &"SFX"
+
+[connection signal="reset" from="." to="." method="_on_reset"]

@@ -1,0 +1,119 @@
+[gd_scene load_steps=14 format=3 uid="uid://cueqf5r4smsha"]
+
+[ext_resource type="FontFile" uid="uid://pjujtt4estef" path="res://assets/Lato-Regular.ttf" id="1_7nmje"]
+[ext_resource type="PackedScene" uid="uid://dnigag6t7gt8q" path="res://pallete.tscn" id="1_bd4gg"]
+[ext_resource type="Script" path="res://game.gd" id="1_fu3a5"]
+[ext_resource type="PackedScene" uid="uid://chbilb3a4bp11" path="res://ball.tscn" id="2_hrder"]
+[ext_resource type="PackedScene" uid="uid://bsiiultfp5gxl" path="res://lose.tscn" id="3_da4kw"]
+[ext_resource type="AudioStream" uid="uid://c6ek1lw7ksoep" path="res://sfx/PICATRIX.wav" id="5_imm5k"]
+[ext_resource type="AudioStream" uid="uid://dfq5ryi4p01vk" path="res://sfx/exocideos.wav" id="7_fongm"]
+[ext_resource type="AudioStream" uid="uid://dh8mlite25sb7" path="res://sfx/points.wav" id="7_rqaxl"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_w7nst"]
+font = ExtResource("1_7nmje")
+font_size = 60
+
+[sub_resource type="LabelSettings" id="LabelSettings_buv1t"]
+font = ExtResource("1_7nmje")
+font_size = 50
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kwh6t"]
+size = Vector2(1193, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ar3eq"]
+size = Vector2(1179, 20)
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_2eae3"]
+streams_count = 2
+stream_0/stream = ExtResource("5_imm5k")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("7_fongm")
+stream_1/weight = 1.0
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_fu3a5")
+
+[node name="RightPoints" type="Label" parent="."]
+offset_left = 581.0
+offset_top = 282.0
+offset_right = 722.0
+offset_bottom = 358.0
+text = "0
+"
+label_settings = SubResource("LabelSettings_w7nst")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LeftPoints" type="Label" parent="."]
+offset_left = 420.0
+offset_top = 282.0
+offset_right = 561.0
+offset_bottom = 358.0
+text = "0
+"
+label_settings = SubResource("LabelSettings_w7nst")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WaitTime" type="Label" parent="."]
+visible = false
+offset_left = 482.0
+offset_top = 183.0
+offset_right = 670.0
+offset_bottom = 262.0
+text = "3"
+label_settings = SubResource("LabelSettings_buv1t")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Pallet2" parent="." instance=ExtResource("1_bd4gg")]
+position = Vector2(1122, 324)
+bounce_offset = Vector2(50, 0)
+
+[node name="Pallet" parent="." instance=ExtResource("1_bd4gg")]
+position = Vector2(30, 324)
+follow_node_path = NodePath("../Ball")
+bounce_offset = Vector2(-50, 0)
+
+[node name="Ball" parent="." instance=ExtResource("2_hrder")]
+position = Vector2(578, 325)
+
+[node name="Wall" type="StaticBody2D" parent="."]
+position = Vector2(-11, 661)
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall"]
+position = Vector2(586.5, 0)
+shape = SubResource("RectangleShape2D_kwh6t")
+
+[node name="Wall2" type="StaticBody2D" parent="."]
+position = Vector2(-8, -10)
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall2"]
+position = Vector2(579.5, 0)
+shape = SubResource("RectangleShape2D_ar3eq")
+
+[node name="Lose" parent="." instance=ExtResource("3_da4kw")]
+position = Vector2(1441, 324)
+side = -1
+
+[node name="Lose2" parent="." instance=ExtResource("3_da4kw")]
+position = Vector2(-294, 324)
+side = 1
+
+[node name="music" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamRandomizer_2eae3")
+volume_db = -20.0
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true
+
+[node name="LoseSFX" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_rqaxl")
+bus = &"SFX"
+
+[connection signal="lose" from="." to="." method="_on_lose"]
+[connection signal="resume_game" from="." to="." method="_on_resume_game"]
+[connection signal="finished" from="music" to="." method="_on_music_finished"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://dnigag6t7gt8q"]
+
+[ext_resource type="Texture2D" uid="uid://b5t8pnp6tw6ty" path="res://icon.svg" id="1_nvh08"]
+[ext_resource type="Script" path="res://pallete.gd" id="1_y5gs8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hd574"]
+size = Vector2(12, 127)
+
+[node name="Pallet" type="CharacterBody2D" groups=["pallete"]]
+motion_mode = 1
+platform_on_leave = 2
+script = ExtResource("1_y5gs8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_hd574")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.1, 1)
+texture = ExtResource("1_nvh08")

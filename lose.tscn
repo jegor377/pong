@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://bsiiultfp5gxl"]
+
+[ext_resource type="Script" path="res://lose.gd" id="1_lquwq"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nuv6k"]
+size = Vector2(562, 695)
+
+[node name="Lose" type="Area2D" groups=["lose"]]
+script = ExtResource("1_lquwq")
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, 3.5)
+shape = SubResource("RectangleShape2D_nuv6k")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

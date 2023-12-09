@@ -1,0 +1,97 @@
+[gd_scene load_steps=5 format=3 uid="uid://sipe5y1w02d8"]
+
+[ext_resource type="Theme" uid="uid://dbu4uqvxb4m86" path="res://menu.tres" id="1_etwdu"]
+[ext_resource type="Script" path="res://menu.gd" id="1_ljfwh"]
+[ext_resource type="FontFile" uid="uid://pjujtt4estef" path="res://assets/Lato-Regular.ttf" id="1_wh6wf"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_eewyh"]
+font = ExtResource("1_wh6wf")
+font_size = 50
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ljfwh")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 100
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6
+text = "PONG"
+label_settings = SubResource("LabelSettings_eewyh")
+horizontal_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/CenterContainer"]
+layout_mode = 2
+
+[node name="Connect" type="Button" parent="VBoxContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_etwdu")
+text = "JOIN"
+
+[node name="Host" type="Button" parent="VBoxContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_etwdu")
+text = "CREATE LOBBY"
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "IP"
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/minimum_character_width = 5
+text = "127.0.0.1"
+alignment = 1
+expand_to_text_length = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Port"
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_override_constants/minimum_character_width = 5
+text = "8080"
+alignment = 1
+expand_to_text_length = true
+
+[connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Connect" to="." method="_on_connect_pressed"]
+[connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Host" to="." method="_on_host_pressed"]

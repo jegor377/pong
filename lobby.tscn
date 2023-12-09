@@ -1,0 +1,108 @@
+[gd_scene load_steps=5 format=3 uid="uid://b7lurk17j0a8u"]
+
+[ext_resource type="FontFile" uid="uid://pjujtt4estef" path="res://assets/Lato-Regular.ttf" id="1_1ybik"]
+[ext_resource type="Texture2D" uid="uid://osbijxufoqqk" path="res://assets/player icon.png" id="2_3gaf4"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_kfd4q"]
+font = ExtResource("1_1ybik")
+font_size = 40
+
+[sub_resource type="LabelSettings" id="LabelSettings_4akj3"]
+font = ExtResource("1_1ybik")
+font_size = 20
+
+[node name="Lobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer2"]
+layout_mode = 2
+text = "LOBBY"
+label_settings = SubResource("LabelSettings_kfd4q")
+horizontal_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Player1" type="VBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/HBoxContainer/Player1"]
+layout_mode = 2
+text = "PLAYER #1"
+label_settings = SubResource("LabelSettings_4akj3")
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer/Player1"]
+custom_minimum_size = Vector2(400, 400)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/MarginContainer/HBoxContainer/Player1/VBoxContainer"]
+modulate = Color(1, 1, 1, 0.117647)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("2_3gaf4")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Player2" type="VBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/HBoxContainer/Player2"]
+layout_mode = 2
+text = "PLAYER #2"
+label_settings = SubResource("LabelSettings_4akj3")
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer/Player2"]
+custom_minimum_size = Vector2(400, 400)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/MarginContainer/HBoxContainer/Player2/VBoxContainer"]
+modulate = Color(1, 1, 1, 0.117647)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("2_3gaf4")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 2
+
+[node name="Button" type="Button" parent="VBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "READY"
