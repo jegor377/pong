@@ -69,10 +69,11 @@ alignment = 2
 layout_mode = 2
 text = "IP"
 
-[node name="LineEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="IPEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/minimum_character_width = 5
-text = "127.0.0.1"
+text = "192.168.87.9"
 alignment = 1
 expand_to_text_length = true
 
@@ -86,12 +87,14 @@ alignment = 2
 layout_mode = 2
 text = "Port"
 
-[node name="LineEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="PortEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/minimum_character_width = 5
 text = "8080"
 alignment = 1
-expand_to_text_length = true
 
 [connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Connect" to="." method="_on_connect_pressed"]
 [connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Host" to="." method="_on_host_pressed"]
+[connection signal="text_changed" from="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/IPEdit" to="." method="_on_ip_edit_text_changed"]
+[connection signal="text_changed" from="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2/PortEdit" to="." method="_on_port_edit_text_changed"]
