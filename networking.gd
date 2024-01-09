@@ -37,6 +37,11 @@ enum PackedDecodeStep {
 }
 
 var current_decode_step: int = PackedDecodeStep.PREAMBULE
+var part_data := PackedByteArray([])
+var part_pos := 0
+var part_ready := false
+var part_size := 0
+var read_amount := 0
 
 func _ready():
 	client = PacketPeerUDP.new()
@@ -49,24 +54,54 @@ func _process(delta):
 
 func process_packet(packet: PackedByteArray) -> void:
 	var i := 0
+	var packet_start := 0
+	var tmp_packet: PackedByteArray
 	while i < packet.size():
 		match current_decode_step:
 			PackedDecodeStep.PREAMBULE:
 				if i + PREAMBULE_SIZE < packet.size() and packet.slice(i, i + PREAMBULE_SIZE) == PREAMBULE:
 					current_decode_step = PackedDecodeStep.TYPE
+					tmp_packet.append_array(PREAMBULE)
 					i += PREAMBULE_SIZE
 				else:
 					i += 1
 			PackedDecodeStep.TYPE:
 				packet_type = packet.decode_u8(i)
+				tmp_packet.append(packet_type)
 				current_decode_step = PackedDecodeStep.SIZE
 				i += 1
+				reset_part(2) # size size :)
 			PackedDecodeStep.SIZE:
-				pass
+				read_amount = read_part(packet, i)
+				if part_ready:
+					packet_size = part_data.decode_u16(0)
+					tmp_packet.append_array(part_data)
+					current_decode_step = PackedDecodeStep.DATA
+					reset_part(packet_size)
+				i += read_amount
 			PackedDecodeStep.DATA:
-				pass
+				read_amount = read_part(packet, i)
+				if part_ready:
+					packet_data = part_data
+					tmp_packet.append_array(part_data)
+					current_decode_step = PackedDecodeStep.CRC
+					reset_part(2) # crc size
+				i += read_amount
 			PackedDecodeStep.CRC:
-				pass
+				read_amount = read_part(packet, i)
+				if part_ready:
+					packet_crc = part_data.decode_u16(0)
+					tmp_packet.append_array(part_data)
+					var calc_crc := crc16(tmp_packet)
+				
+					if calc_crc == packet_crc:
+						print("CRC correcto")
+					else:
+						print("CRC incorrecto")
+					
+					tmp_packet.clear()
+					current_decode_step = PackedDecodeStep.PREAMBULE
+				i += 2
 
 
 func crc16(data: PackedByteArray) -> int:
@@ -84,6 +119,31 @@ func crc16(data: PackedByteArray) -> int:
 				crc = (crc >> 1)
 	return crc
 
+func reset_part(size: int) -> void:
+	part_data = PackedByteArray([])
+	part_pos = 0
+	part_size = size
+	part_ready = false
+
+func read_part(packet: PackedByteArray, i: int) -> int:
+	if part_pos < part_size:
+		# can read
+		var avail_bytes := packet.size() - i
+		var remaining_bytes := part_size - part_pos
+		if avail_bytes >= remaining_bytes: # can read full remaining amount
+			part_data.append_array(packet.slice(i, i + remaining_bytes))
+			part_pos += remaining_bytes
+			part_ready = true
+			return remaining_bytes
+		else: # can read only available count
+			part_data.append_array(packet.slice(i, i + avail_bytes))
+			part_pos += avail_bytes
+			if part_pos == part_size:
+				part_ready = true
+			return avail_bytes
+	else:
+		part_ready = true
+	return 0
 
 func create_packet(type: int, data: PackedByteArray = PackedByteArray([])) -> PackedByteArray:
 	var packet := PackedByteArray(PREAMBULE)
