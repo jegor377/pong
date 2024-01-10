@@ -1,12 +1,19 @@
 extends Node
 
+signal connected()
+signal not_connected()
+signal assigned_to_session()
+signal disconnected()
 
 var ip: String
 var port: String
 
 var main_id: int
 var secondary_id: int
-var current_id: int
+var current_id: int = -1
+
+var session_id: int = -1
+var session_role: int = ClientType.NONE
 
 var palette_pos: Vector2
 var palette_dir: Vector2
@@ -20,7 +27,29 @@ var client: PacketPeerUDP
 
 enum PacketType {
 	UNKNOWN = -1,
-	CONNECT = 0
+	CONNECT = 0,
+	CONNECTED = 1,
+	NOT_CONNECTED = 2,
+	DISCONNECT = 3,
+	CREATE_SESSION = 4,
+	ASSIGNED_TO_SESSION = 5,
+	COULD_NOT_MAKE_SESSION = 6,
+	SET_READY = 7,
+	COULD_NOT_ASSIGN_TO_SESSION = 9,
+	SESSION_DISCONNECT_STATUS = 11,
+	GAME_STARTED = 13,
+	INFORM_BALL_POS = 15,
+	INFORM_PLAYER_POS = 17,
+	INFORM_POINT_SCORED = 19,
+	INFORM_WON = 20,
+	IM_ALIVE = 21,
+	DISCONNECTED = 22
+}
+
+enum ClientType {
+	NONE = -1,
+	MAIN = 0,
+	SECONDARY = 1
 }
 
 var packet_type: int = PacketType.UNKNOWN
@@ -43,8 +72,13 @@ var part_ready := false
 var part_size := 0
 var read_amount := 0
 
+var pingTimer := Timer.new()
+
 func _ready():
 	client = PacketPeerUDP.new()
+	add_child(pingTimer)
+	pingTimer.one_shot = false
+	pingTimer.connect("timeout", alive_timeout)
 
 func _process(delta):
 	if client.get_available_packet_count() > 0:
@@ -95,9 +129,7 @@ func process_packet(packet: PackedByteArray) -> void:
 					var calc_crc := crc16(tmp_packet)
 				
 					if calc_crc == packet_crc:
-						print("CRC correcto")
-					else:
-						print("CRC incorrecto")
+						process_decoded_packet()
 					
 					tmp_packet.clear()
 					current_decode_step = PackedDecodeStep.PREAMBULE
@@ -147,10 +179,12 @@ func read_part(packet: PackedByteArray, i: int) -> int:
 
 func create_packet(type: int, data: PackedByteArray = PackedByteArray([])) -> PackedByteArray:
 	var packet := PackedByteArray(PREAMBULE)
-	packet.resize(PREAMBULE.size() + 3 + data.size() + 2)
+	var initial_size := PREAMBULE.size() + 3
+	packet.resize(initial_size)
 	packet.encode_u8(3, type)
 	packet.encode_u16(4, data.size())
 	packet += data
+	packet.resize(initial_size + data.size() + 2)
 	var crc = crc16(packet)
 	packet.encode_u16(6 + data.size(), crc)
 	
@@ -159,9 +193,74 @@ func create_packet(type: int, data: PackedByteArray = PackedByteArray([])) -> Pa
 func create_connect_packet() -> PackedByteArray:
 	return create_packet(PacketType.CONNECT)
 
+func create_im_alive_packet() -> PackedByteArray:
+	return create_packet(PacketType.IM_ALIVE)
+
+func create_disconnect_packet() -> PackedByteArray:
+	var data := PackedByteArray([0, 0])
+	data.encode_u16(0, current_id)
+	return create_packet(PacketType.DISCONNECT, data)
+
+func create_make_session_packet() -> PackedByteArray:
+	var data := PackedByteArray([0, 0])
+	data.encode_u16(0, current_id)
+	return create_packet(PacketType.CREATE_SESSION, data)
+
 func connect_to_server() -> void:
 	client.connect_to_host(ip, int(port))
-	var connectPacket := create_connect_packet()
-	client.put_packet(connectPacket)
+	var connect_packet := create_connect_packet()
+	client.put_packet(connect_packet)
+
+func send_im_alive() -> void:
+	var im_alive_packet := create_im_alive_packet()
+	client.put_packet(im_alive_packet)
+
+func disconnect_from_server() -> void:
+	if current_id != -1:
+		var disconnect_packet := create_disconnect_packet()
+		client.put_packet(disconnect_packet)
+	else:
+		print("Client not connected")
+
+func create_session() -> void:
+	if current_id != -1:
+		var create_session_packet := create_make_session_packet()
+		client.put_packet(create_session_packet)
+	else:
+		print("Client not connected")
+
+func process_decoded_packet() -> void:
+	match packet_type:
+		PacketType.CONNECTED:
+			current_id = packet_data.decode_u16(0)
+			print("Connected on id: ", current_id)
+			pingTimer.start(5)
+			emit_signal("connected")
+		PacketType.NOT_CONNECTED:
+			emit_signal("not_connected")
+		PacketType.ASSIGNED_TO_SESSION:
+			var _session_id := packet_data.decode_u16(0)
+			var _client_id := packet_data.decode_u16(2)
+			var client_type = packet_data.decode_u8(4)
+			
+			session_role = client_type
+			session_id = _session_id
+			
+			match client_type:
+				ClientType.MAIN:
+					main_id = _client_id
+				ClientType.SECONDARY:
+					secondary_id = _client_id
+				_:
+					return
+			emit_signal("assigned_to_session")
+		PacketType.DISCONNECTED:
+			pingTimer.stop()
+			current_id = -1
+			print("Disconnected")
+			emit_signal("disconnected")
+
+func alive_timeout() -> void:
+	send_im_alive()
 
 

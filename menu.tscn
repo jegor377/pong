@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://sipe5y1w02d8"]
+[gd_scene load_steps=6 format=3 uid="uid://sipe5y1w02d8"]
 
 [ext_resource type="Theme" uid="uid://dbu4uqvxb4m86" path="res://menu.tres" id="1_etwdu"]
 [ext_resource type="Script" path="res://menu.gd" id="1_ljfwh"]
 [ext_resource type="FontFile" uid="uid://pjujtt4estef" path="res://assets/Lato-Regular.ttf" id="1_wh6wf"]
+[ext_resource type="PackedScene" uid="uid://b7lurk17j0a8u" path="res://lobby.tscn" id="2_srbdk"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_eewyh"]
 font = ExtResource("1_wh6wf")
@@ -16,6 +17,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ljfwh")
+lobby_scene = ExtResource("2_srbdk")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -41,12 +43,14 @@ size_flags_vertical = 3
 [node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/CenterContainer"]
 layout_mode = 2
 
-[node name="Connect" type="Button" parent="VBoxContainer/CenterContainer/VBoxContainer"]
+[node name="Join" type="Button" parent="VBoxContainer/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme = ExtResource("1_etwdu")
 text = "JOIN"
 
 [node name="Host" type="Button" parent="VBoxContainer/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme = ExtResource("1_etwdu")
 text = "CREATE LOBBY"
@@ -94,7 +98,7 @@ theme_override_constants/minimum_character_width = 5
 text = "8080"
 alignment = 1
 
-[connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Connect" to="." method="_on_connect_pressed"]
+[connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Join" to="." method="_on_connect_pressed"]
 [connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Host" to="." method="_on_host_pressed"]
 [connection signal="text_changed" from="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/IPEdit" to="." method="_on_ip_edit_text_changed"]
 [connection signal="text_changed" from="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2/PortEdit" to="." method="_on_port_edit_text_changed"]
