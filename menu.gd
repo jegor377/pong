@@ -14,12 +14,16 @@ func _ready():
 	Networking.connect("connected", _on_connected)
 	Networking.connect("not_connected", _on_not_connected)
 	Networking.connect("assigned_to_session", _on_assigned_to_session)
+	Networking.connect("could_not_create_session", _on_could_not_create_session)
+	Networking.connect("could_not_assign_to_session", _on_could_not_assign_to_session)
 
 
 func _on_connect_pressed():
-	set_btns_disabled(true)
 	action = "join"
-	Networking.connect_to_server()
+	if not Networking.is_connected_to_server():
+		set_btns_disabled(true)
+		Networking.connect_to_server()
+	%JoinMenu.visible = true
 
 
 func _on_host_pressed():
@@ -62,3 +66,22 @@ func _on_not_connected() -> void:
 
 func _on_assigned_to_session() -> void:
 	get_tree().change_scene_to_packed(lobby_scene)
+
+func _on_could_not_create_session() -> void:
+	%ErrorMsg.text = "Could not create session"
+	%Errors.visible = true
+
+func _on_back_btn_pressed():
+	%JoinMenu.visible = false
+
+func _on_join_btn_pressed():
+	print("Connecting to session with id: ", %SessionId.value)
+	Networking.join_session(%SessionId.value)
+
+func _on_could_not_assign_to_session(session_id: int) -> void:
+	%ErrorMsg.text = "Could not assign to session with id: " + str(session_id)
+	%Errors.visible = true
+
+
+func _on_close_error_msg_pressed():
+	%Errors.visible = false

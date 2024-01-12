@@ -3,6 +3,9 @@ extends Node
 signal connected()
 signal not_connected()
 signal assigned_to_session()
+signal could_not_create_session()
+signal set_ready(client_id, ready)
+signal could_not_assign_to_session(session_id)
 signal disconnected()
 
 var ip: String
@@ -11,6 +14,9 @@ var port: String
 var main_id: int
 var secondary_id: int
 var current_id: int = -1
+
+var main_ready := false
+var secondary_ready := false
 
 var session_id: int = -1
 var session_role: int = ClientType.NONE
@@ -35,6 +41,7 @@ enum PacketType {
 	ASSIGNED_TO_SESSION = 5,
 	COULD_NOT_MAKE_SESSION = 6,
 	SET_READY = 7,
+	CONNECT_TO_SESSION = 8,
 	COULD_NOT_ASSIGN_TO_SESSION = 9,
 	SESSION_DISCONNECT_STATUS = 11,
 	GAME_STARTED = 13,
@@ -206,6 +213,12 @@ func create_make_session_packet() -> PackedByteArray:
 	data.encode_u16(0, current_id)
 	return create_packet(PacketType.CREATE_SESSION, data)
 
+func create_join_session_packet(_session_id) -> PackedByteArray:
+	var data := PackedByteArray([0, 0, 0, 0])
+	data.encode_u16(0, current_id)
+	data.encode_u16(2, _session_id)
+	return create_packet(PacketType.CONNECT_TO_SESSION, data)
+
 func connect_to_server() -> void:
 	client.connect_to_host(ip, int(port))
 	var connect_packet := create_connect_packet()
@@ -216,18 +229,22 @@ func send_im_alive() -> void:
 	client.put_packet(im_alive_packet)
 
 func disconnect_from_server() -> void:
-	if current_id != -1:
-		var disconnect_packet := create_disconnect_packet()
-		client.put_packet(disconnect_packet)
-	else:
-		print("Client not connected")
+	if not check_connected():
+		return
+	var disconnect_packet := create_disconnect_packet()
+	client.put_packet(disconnect_packet)
 
 func create_session() -> void:
-	if current_id != -1:
-		var create_session_packet := create_make_session_packet()
-		client.put_packet(create_session_packet)
-	else:
-		print("Client not connected")
+	if not check_connected():
+		return
+	var create_session_packet := create_make_session_packet()
+	client.put_packet(create_session_packet)
+
+func join_session(_session_id: int) -> void:
+	if not check_connected():
+		return
+	var join_packet := create_join_session_packet(_session_id)
+	client.put_packet(join_packet)
 
 func process_decoded_packet() -> void:
 	match packet_type:
@@ -242,6 +259,7 @@ func process_decoded_packet() -> void:
 			var _session_id := packet_data.decode_u16(0)
 			var _client_id := packet_data.decode_u16(2)
 			var client_type = packet_data.decode_u8(4)
+			print("Assigned client: ", _client_id, " to session: ", _session_id)
 			
 			session_role = client_type
 			session_id = _session_id
@@ -254,6 +272,23 @@ func process_decoded_packet() -> void:
 				_:
 					return
 			emit_signal("assigned_to_session")
+		PacketType.COULD_NOT_MAKE_SESSION:
+			emit_signal("could_not_create_session")
+		PacketType.SET_READY:
+			var _session_id := packet_data.decode_u16(0)
+			var _client_id := packet_data.decode_u16(2)
+			var ready = packet_data.decode_u8(4) == 1
+			
+			var _client_type := client_type(_client_id)
+			if _client_type == ClientType.MAIN:
+				main_ready = ready
+			elif _client_type == ClientType.SECONDARY:
+				secondary_ready = ready
+			
+			emit_signal("set_ready", _client_type, ready)
+		PacketType.COULD_NOT_ASSIGN_TO_SESSION:
+			var _session_id := packet_data.decode_u16(0)
+			emit_signal("could_not_assign_to_session", _session_id)
 		PacketType.DISCONNECTED:
 			pingTimer.stop()
 			current_id = -1
@@ -263,4 +298,18 @@ func process_decoded_packet() -> void:
 func alive_timeout() -> void:
 	send_im_alive()
 
+func client_type(client_id) -> ClientType:
+	if client_id == main_id:
+		return ClientType.MAIN
+	elif client_id == secondary_id:
+		return ClientType.SECONDARY
+	return ClientType.NONE
 
+func is_connected_to_server() -> bool:
+	return current_id != -1
+
+func check_connected() -> bool:
+	var connected := is_connected_to_server()
+	if not connected:
+		print("Client not connected")
+	return connected

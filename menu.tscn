@@ -19,8 +19,9 @@ grow_vertical = 2
 script = ExtResource("1_ljfwh")
 lobby_scene = ExtResource("2_srbdk")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 1
+[node name="Menu" type="CanvasLayer" parent="."]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -29,51 +30,51 @@ grow_vertical = 2
 theme_override_constants/separation = 100
 alignment = 1
 
-[node name="Label" type="Label" parent="VBoxContainer"]
+[node name="Label" type="Label" parent="Menu/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 6
 text = "PONG"
 label_settings = SubResource("LabelSettings_eewyh")
 horizontal_alignment = 1
 
-[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer"]
+[node name="CenterContainer" type="CenterContainer" parent="Menu/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/VBoxContainer/CenterContainer"]
 layout_mode = 2
 
-[node name="Join" type="Button" parent="VBoxContainer/CenterContainer/VBoxContainer"]
+[node name="Join" type="Button" parent="Menu/VBoxContainer/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme = ExtResource("1_etwdu")
 text = "JOIN"
 
-[node name="Host" type="Button" parent="VBoxContainer/CenterContainer/VBoxContainer"]
+[node name="Host" type="Button" parent="Menu/VBoxContainer/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme = ExtResource("1_etwdu")
 text = "CREATE LOBBY"
 
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Menu/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/VBoxContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Menu/VBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 10
 theme_override_constants/separation = 10
 alignment = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="Menu/VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "IP"
 
-[node name="IPEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="IPEdit" type="LineEdit" parent="Menu/VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/minimum_character_width = 5
@@ -81,24 +82,126 @@ text = "192.168.87.9"
 alignment = 1
 expand_to_text_length = true
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="Menu/VBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 10
 theme_override_constants/separation = 10
 alignment = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="Menu/VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 text = "Port"
 
-[node name="PortEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="PortEdit" type="LineEdit" parent="Menu/VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/minimum_character_width = 5
 text = "8080"
 alignment = 1
 
-[connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Join" to="." method="_on_connect_pressed"]
-[connection signal="pressed" from="VBoxContainer/CenterContainer/VBoxContainer/Host" to="." method="_on_host_pressed"]
-[connection signal="text_changed" from="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/IPEdit" to="." method="_on_ip_edit_text_changed"]
-[connection signal="text_changed" from="VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2/PortEdit" to="." method="_on_port_edit_text_changed"]
+[node name="JoinMenu" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+layer = 2
+visible = false
+
+[node name="MarginContainer2" type="MarginContainer" parent="JoinMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 190
+theme_override_constants/margin_top = 190
+theme_override_constants/margin_right = 190
+theme_override_constants/margin_bottom = 190
+
+[node name="ColorRect" type="ColorRect" parent="JoinMenu/MarginContainer2"]
+layout_mode = 2
+color = Color(0.541176, 0.541176, 0.541176, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="JoinMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 200
+theme_override_constants/margin_top = 200
+theme_override_constants/margin_right = 200
+theme_override_constants/margin_bottom = 200
+
+[node name="ColorRect" type="ColorRect" parent="JoinMenu/MarginContainer"]
+layout_mode = 2
+color = Color(0.368627, 0.364706, 0.345098, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinMenu/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="JoinMenu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="JoinMenu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Session id"
+
+[node name="SessionId" type="SpinBox" parent="JoinMenu/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 65535.0
+
+[node name="JoinBtn" type="Button" parent="JoinMenu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "JOIN"
+
+[node name="BackBtn" type="Button" parent="JoinMenu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "BACK"
+
+[node name="Errors" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+layer = 3
+visible = false
+
+[node name="MarginContainer" type="MarginContainer" parent="Errors"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 250
+theme_override_constants/margin_top = 250
+theme_override_constants/margin_right = 250
+theme_override_constants/margin_bottom = 250
+
+[node name="ColorRect" type="ColorRect" parent="Errors/MarginContainer"]
+layout_mode = 2
+color = Color(0.372549, 0.101961, 0.0745098, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Errors"]
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -29.0
+offset_right = 29.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="ErrorMsg" type="Label" parent="Errors/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CloseErrorMsg" type="Button" parent="Errors/VBoxContainer"]
+layout_mode = 2
+text = "CLOSE"
+
+[connection signal="pressed" from="Menu/VBoxContainer/CenterContainer/VBoxContainer/Join" to="." method="_on_connect_pressed"]
+[connection signal="pressed" from="Menu/VBoxContainer/CenterContainer/VBoxContainer/Host" to="." method="_on_host_pressed"]
+[connection signal="text_changed" from="Menu/VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/IPEdit" to="." method="_on_ip_edit_text_changed"]
+[connection signal="text_changed" from="Menu/VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer2/PortEdit" to="." method="_on_port_edit_text_changed"]
+[connection signal="pressed" from="JoinMenu/MarginContainer/VBoxContainer/JoinBtn" to="." method="_on_join_btn_pressed"]
+[connection signal="pressed" from="JoinMenu/MarginContainer/VBoxContainer/BackBtn" to="." method="_on_back_btn_pressed"]
+[connection signal="pressed" from="Errors/VBoxContainer/CloseErrorMsg" to="." method="_on_close_error_msg_pressed"]
