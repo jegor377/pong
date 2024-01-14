@@ -21,7 +21,8 @@ func _physics_process(delta):
 		else:
 			velocity.y = 0
 	else:
-		velocity.y = Networking.enemy_dir.y * SPEED
+		# when commented, it works better
+		# velocity.y = Networking.enemy_dir.y * SPEED
 		position.y = Networking.enemy_pos.y
 
 	position.x = initial_x
