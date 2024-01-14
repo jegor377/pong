@@ -27,9 +27,12 @@ func _on_connect_pressed():
 
 
 func _on_host_pressed():
-	set_btns_disabled(true)
 	action = "host"
-	Networking.connect_to_server()
+	if not Networking.is_connected_to_server():
+		set_btns_disabled(true)
+		Networking.connect_to_server()
+	else:
+		_on_connected()
 
 
 func set_btns_disabled(state) -> void:
@@ -64,7 +67,7 @@ func _on_not_connected() -> void:
 	set_btns_disabled(false)
 	print("NOT_CONNECTED")
 
-func _on_assigned_to_session() -> void:
+func _on_assigned_to_session(client_id: int, role: int) -> void:
 	get_tree().change_scene_to_packed(lobby_scene)
 
 func _on_could_not_create_session() -> void:

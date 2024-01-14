@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://c0v2l6440ew5t"]
+
+[ext_resource type="Script" path="res://lobby_player.gd" id="1_i4a4c"]
+[ext_resource type="FontFile" uid="uid://pjujtt4estef" path="res://assets/Lato-Regular.ttf" id="2_htd48"]
+[ext_resource type="Texture2D" uid="uid://osbijxufoqqk" path="res://assets/player icon.png" id="3_u13k7"]
+[ext_resource type="Script" path="res://player_texture.gd" id="4_b6nm4"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_4akj3"]
+font = ExtResource("2_htd48")
+font_size = 20
+
+[node name="LobbyPlayer" type="VBoxContainer"]
+size_flags_horizontal = 3
+script = ExtResource("1_i4a4c")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "PLAYER"
+label_settings = SubResource("LabelSettings_4akj3")
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(400, 400)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer"]
+modulate = Color(1, 1, 1, 0.117647)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("3_u13k7")
+expand_mode = 1
+stretch_mode = 4
+script = ExtResource("4_b6nm4")
