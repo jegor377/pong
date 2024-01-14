@@ -2,7 +2,9 @@ extends TextureRect
 
 
 func enable() -> void:
-	modulate.a = 255
+	var tween = get_tree().create_tween()
+	tween.tween_property(self, "modulate", Color(Color.WHITE, 1), 0.1)
 
 func disable() -> void:
-	modulate.a = 30
+	var tween = get_tree().create_tween()
+	tween.tween_property(self, "modulate", Color(Color.WHITE, 0.1), 0.1)

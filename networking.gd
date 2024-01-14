@@ -4,7 +4,7 @@ signal connected()
 signal not_connected()
 signal assigned_to_session(client_id: int, role: int)
 signal could_not_create_session()
-signal set_ready(client_id, ready)
+signal set_ready(client_type, ready)
 signal could_not_assign_to_session(session_id)
 signal session_leave_status(client_id, left)
 signal became_main()
@@ -17,6 +17,7 @@ var main_id: int
 var secondary_id: int
 var current_id: int = -1
 
+var current_ready := false
 var main_ready := false
 var secondary_ready := false
 
@@ -47,6 +48,7 @@ enum PacketType {
 	COULD_NOT_ASSIGN_TO_SESSION = 9,
 	LEAVE_SESSION = 10,
 	SESSION_LEAVE_STATUS = 11,
+	SET_READINESS = 12,
 	GAME_STARTED = 13,
 	INFORM_BALL_POS = 15,
 	INFORM_PLAYER_POS = 17,
@@ -263,13 +265,26 @@ func create_leave_session_packet(_session_id: int, _client_id: int) -> PackedByt
 	return create_packet(PacketType.LEAVE_SESSION, data)
 
 func leave_session() -> void:
-	if session_id == -1:
-		print("Not in session")
+	if not check_in_session():
 		return
 	if not check_connected():
 		return
 	var leave_packet := create_leave_session_packet(session_id, current_id)
 	client.put_packet(leave_packet)
+
+func create_readiness_packet(readiness: bool) -> PackedByteArray:
+	var data = PackedByteArray([0, 0, 0, 0, 0])
+	data.encode_u16(0, current_id)
+	data.encode_u16(2, session_id)
+	data.encode_u8(4, 1 if readiness else 0)
+	return create_packet(PacketType.SET_READINESS, data)
+
+func set_readiness(readiness: bool) -> void:
+	if not check_in_session():
+		return
+	if not check_connected():
+		return
+	client.put_packet(create_readiness_packet(1 if readiness else 0))
 
 func client_type_name(client_type) -> String:
 	if client_type == ClientType.MAIN:
@@ -313,7 +328,11 @@ func process_decoded_packet() -> void:
 			var _client_id := packet_data.decode_u16(2)
 			var ready = packet_data.decode_u8(4) == 1
 			
+			if _client_id == current_id:
+				current_ready = ready
+			
 			var _client_type := client_type(_client_id)
+			
 			if _client_type == ClientType.MAIN:
 				main_ready = ready
 			elif _client_type == ClientType.SECONDARY:
@@ -332,23 +351,26 @@ func process_decoded_packet() -> void:
 			
 			if _session_id == session_id:
 				if _client_id == current_id:
-					session_id = -1
-					session_role = ClientType.NONE
-					main_id = -1
-					secondary_id = -1
+					reset_session()
+					reset_main()
+					reset_secondary()
+					current_ready = false
 				elif _client_id == main_id:
 					if session_role == ClientType.MAIN:
-						main_id = -1
+						reset_main()
 					elif session_role == ClientType.SECONDARY:
+						secondary_ready = false
 						main_id = current_id
+						main_ready = false
 						session_role = ClientType.MAIN
 						emit_signal("became_main")
 				elif _client_id == secondary_id:
-					secondary_id = -1
+					reset_secondary()
 				emit_signal("session_leave_status", _client_id, left)
 		PacketType.DISCONNECTED:
 			pingTimer.stop()
 			current_id = -1
+			current_ready = false
 			print("Disconnected")
 			emit_signal("disconnected")
 
@@ -365,8 +387,29 @@ func client_type(client_id) -> ClientType:
 func is_connected_to_server() -> bool:
 	return current_id != -1
 
+func is_in_session() -> bool:
+	return session_id != -1
+
 func check_connected() -> bool:
 	var connected := is_connected_to_server()
 	if not connected:
 		print("Client not connected")
 	return connected
+
+func check_in_session() -> bool:
+	var in_session := is_in_session()
+	if not in_session:
+		print("Not in session")
+	return in_session
+
+func reset_session() -> void:
+	session_id = -1
+	session_role = ClientType.NONE
+
+func reset_main() -> void:
+	main_id = -1
+	main_ready = false
+
+func reset_secondary() -> void:
+	secondary_id = -1
+	secondary_ready = false

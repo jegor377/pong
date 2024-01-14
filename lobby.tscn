@@ -78,14 +78,5 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "READY"
 
-[node name="StartBtn" type="Button" parent="VBoxContainer/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "START"
-
 [connection signal="pressed" from="VBoxContainer/VBoxContainer/HBoxContainer/BackBtn" to="." method="_on_back_btn_pressed"]
 [connection signal="pressed" from="VBoxContainer/VBoxContainer/HBoxContainer/ReadyBtn" to="." method="_on_ready_btn_pressed"]
-[connection signal="pressed" from="VBoxContainer/VBoxContainer/HBoxContainer/StartBtn" to="." method="_on_start_btn_pressed"]

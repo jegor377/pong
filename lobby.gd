@@ -6,7 +6,6 @@ func _ready():
 	if Networking.session_role == Networking.ClientType.MAIN:
 		%LeftPlayer.set_as_you()
 		%RightPlayer.set_as_enemy()
-		%StartBtn.visible = true
 	elif Networking.session_role == Networking.ClientType.SECONDARY:
 		%LeftPlayer.set_as_enemy()
 		%RightPlayer.set_as_you()
@@ -15,6 +14,7 @@ func _ready():
 	Networking.connect("session_leave_status", _on_session_leave_status)
 	Networking.connect("became_main", _on_became_main)
 	Networking.connect("assigned_to_session", _on_assigned_to_session)
+	Networking.connect("set_ready", _on_set_ready)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -46,8 +46,16 @@ func _on_assigned_to_session(client_id: int, role: int) -> void:
 		if role == Networking.ClientType.SECONDARY:
 			%RightPlayer.set_as_enemy()
 
+func _on_set_ready(client_type, readiness) -> void:
+	match client_type:
+		Networking.ClientType.MAIN:
+			%LeftPlayer.set_ready(readiness)
+		Networking.ClientType.SECONDARY:
+			%RightPlayer.set_ready(readiness)
+
 func _on_ready_btn_pressed():
-	pass # Replace with function body.
+	var current_readiness := Networking.current_ready
+	Networking.set_readiness(not current_readiness)
 
 
 func _on_start_btn_pressed():
