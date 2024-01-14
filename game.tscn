@@ -66,14 +66,17 @@ label_settings = SubResource("LabelSettings_buv1t")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Pallet2" parent="." instance=ExtResource("1_bd4gg")]
-position = Vector2(1122, 324)
-bounce_offset = Vector2(50, 0)
-
-[node name="Pallet" parent="." instance=ExtResource("1_bd4gg")]
+[node name="LeftPallet" parent="." instance=ExtResource("1_bd4gg")]
+unique_name_in_owner = true
 position = Vector2(30, 324)
-follow_node_path = NodePath("../Ball")
+side = 0
 bounce_offset = Vector2(-50, 0)
+
+[node name="RightPallet" parent="." instance=ExtResource("1_bd4gg")]
+unique_name_in_owner = true
+position = Vector2(1122, 324)
+side = 1
+bounce_offset = Vector2(50, 0)
 
 [node name="Ball" parent="." instance=ExtResource("2_hrder")]
 position = Vector2(578, 325)

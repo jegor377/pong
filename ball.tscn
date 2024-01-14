@@ -23,4 +23,8 @@ volume_db = -10.0
 pitch_scale = 1.2
 bus = &"SFX"
 
+[node name="ReceiveTimer" type="Timer" parent="."]
+wait_time = 0.2
+
 [connection signal="reset" from="." to="." method="_on_reset"]
+[connection signal="timeout" from="ReceiveTimer" to="." method="_on_receive_timer_timeout"]

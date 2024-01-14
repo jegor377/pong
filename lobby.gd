@@ -15,11 +15,8 @@ func _ready():
 	Networking.connect("became_main", _on_became_main)
 	Networking.connect("assigned_to_session", _on_assigned_to_session)
 	Networking.connect("set_ready", _on_set_ready)
+	Networking.connect("game_started", _on_game_started)
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
 
 func _on_disconnected() -> void:
 	get_tree().change_scene_to_file("res://menu.tscn")
@@ -57,6 +54,5 @@ func _on_ready_btn_pressed():
 	var current_readiness := Networking.current_ready
 	Networking.set_readiness(not current_readiness)
 
-
-func _on_start_btn_pressed():
-	pass # Replace with function body.
+func _on_game_started() -> void:
+	get_tree().change_scene_to_file("res://game.tscn")

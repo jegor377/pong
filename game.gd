@@ -6,6 +6,9 @@ signal resume_game()
 var lose_time = 3
 var side_to_resume := 0
 
+func _ready() -> void:
+	Networking.connect("session_leave_status", _on_session_leave_status)
+
 func _input(event):
 	if event.is_action("ui_cancel"):
 		get_tree().quit()
@@ -43,3 +46,7 @@ func _on_resume_game():
 
 func _on_music_finished():
 	$music.play()
+
+func _on_session_leave_status(client_id, left) -> void:
+	Networking.leave_session()
+	get_tree().change_scene_to_file("res://menu.tscn")

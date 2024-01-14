@@ -8,6 +8,7 @@ signal set_ready(client_type, ready)
 signal could_not_assign_to_session(session_id)
 signal session_leave_status(client_id, left)
 signal became_main()
+signal game_started()
 signal disconnected()
 
 var ip: String
@@ -24,8 +25,10 @@ var secondary_ready := false
 var session_id: int = -1
 var session_role: int = ClientType.NONE
 
-var palette_pos: Vector2
-var palette_dir: Vector2
+var started_game := false
+
+var enemy_pos: Vector2
+var enemy_dir: Vector2
 var ball_pos: Vector2
 var ball_dir: Vector2
 
@@ -50,7 +53,9 @@ enum PacketType {
 	SESSION_LEAVE_STATUS = 11,
 	SET_READINESS = 12,
 	GAME_STARTED = 13,
+	SET_BALL_POS = 14,
 	INFORM_BALL_POS = 15,
+	SET_PLAYER_POS = 16,
 	INFORM_PLAYER_POS = 17,
 	INFORM_POINT_SCORED = 19,
 	INFORM_WON = 20,
@@ -286,6 +291,43 @@ func set_readiness(readiness: bool) -> void:
 		return
 	client.put_packet(create_readiness_packet(1 if readiness else 0))
 
+func create_set_ball_pos_packet(pos: Vector2, dir: Vector2) -> PackedByteArray:
+	var data = PackedByteArray([])
+	data.resize(2 + 12 + 12)
+	data.encode_u16(0, session_id)
+	data.encode_var(2, pos)
+	data.encode_var(14, dir)
+	return create_packet(PacketType.SET_BALL_POS, data)
+
+func set_ball_pos(pos: Vector2, dir: Vector2) -> void:
+	if not check_in_session():
+		return
+	if not check_connected():
+		return
+	if not check_in_game():
+		return
+	if session_role != ClientType.MAIN:
+		print("Only main can set ball pos")
+		return
+	client.put_packet(create_set_ball_pos_packet(pos, dir))
+
+func create_set_pallete_pos(pos: Vector2, dir: Vector2) -> PackedByteArray:
+	var data = PackedByteArray([])
+	data.resize(2 + 12 + 12)
+	data.encode_u16(0, current_id)
+	data.encode_var(2, pos)
+	data.encode_var(14, dir)
+	return create_packet(PacketType.SET_PLAYER_POS, data)
+
+func set_pallete_pos(pos: Vector2, dir: Vector2) -> void:
+	if not check_in_session():
+		return
+	if not check_connected():
+		return
+	if not check_in_game():
+		return
+	client.put_packet(create_set_pallete_pos(pos, dir))
+
 func client_type_name(client_type) -> String:
 	if client_type == ClientType.MAIN:
 		return 'main'
@@ -366,7 +408,21 @@ func process_decoded_packet() -> void:
 						emit_signal("became_main")
 				elif _client_id == secondary_id:
 					reset_secondary()
+				started_game = false
 				emit_signal("session_leave_status", _client_id, left)
+		PacketType.GAME_STARTED:
+			var _session_id := packet_data.decode_u16(0)
+			
+			if session_id == _session_id:
+				started_game = true
+				emit_signal("game_started")
+		PacketType.INFORM_BALL_POS:
+			ball_pos = packet_data.decode_var(0)
+			ball_dir = packet_data.decode_var(12)
+		PacketType.INFORM_PLAYER_POS:
+			var _client_id = packet_data.decode_u16(0)
+			enemy_pos = packet_data.decode_var(2)
+			enemy_dir = packet_data.decode_var(14)
 		PacketType.DISCONNECTED:
 			pingTimer.stop()
 			current_id = -1
@@ -413,3 +469,11 @@ func reset_main() -> void:
 func reset_secondary() -> void:
 	secondary_id = -1
 	secondary_ready = false
+
+func check_in_game() -> bool:
+	if not started_game:
+		print("Not in game")
+	return started_game
+
+func is_main() -> bool:
+	return session_role == ClientType.MAIN

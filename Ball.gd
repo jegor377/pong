@@ -9,7 +9,16 @@ var dir: Vector2 = Vector2.RIGHT
 @onready
 var initial_pos = position
 
+var can_receive_ball_pos := true
+
 func _physics_process(delta):
+	if Networking.is_main():
+		Networking.set_ball_pos(position, dir)
+	elif can_receive_ball_pos:
+		dir = Networking.ball_dir
+		position = Networking.ball_pos
+		$ReceiveTimer.start(0.2)
+	
 	velocity = dir * SPEED
 	if move_and_slide():
 		var body := get_last_slide_collision().get_collider()
@@ -29,3 +38,7 @@ func _on_reset(side):
 	position = initial_pos
 	dir = Vector2.RIGHT * side
 	
+
+
+func _on_receive_timer_timeout():
+	can_receive_ball_pos = true
