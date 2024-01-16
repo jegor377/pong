@@ -9,15 +9,17 @@ var dir: Vector2 = Vector2.RIGHT
 @onready
 var initial_pos = position
 
-var can_receive_ball_pos := true
+var can_do_network := true
 
 func _physics_process(delta):
-	if Networking.is_main():
-		Networking.set_ball_pos(position, dir)
-	elif can_receive_ball_pos:
-		dir = Networking.ball_dir
-		position = Networking.ball_pos
-		$ReceiveTimer.start(0.2)
+	if can_do_network:
+		if Networking.is_main():
+			Networking.set_ball_pos(position, dir)
+		else:
+			dir = Networking.ball_dir
+			position = Networking.ball_pos
+		$NetworkTimer.start(0.01)
+		can_do_network = false
 	
 	velocity = dir * SPEED
 	if move_and_slide():
@@ -40,5 +42,5 @@ func _on_reset(side):
 	
 
 
-func _on_receive_timer_timeout():
-	can_receive_ball_pos = true
+func _on_do_network_timer_timeout():
+	can_do_network = true

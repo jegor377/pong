@@ -91,16 +91,20 @@ var read_amount := 0
 
 var pingTimer := Timer.new()
 
+var thread: Thread = Thread.new()
+
 func _ready():
 	client = PacketPeerUDP.new()
 	add_child(pingTimer)
 	pingTimer.one_shot = false
 	pingTimer.connect("timeout", alive_timeout)
+	thread.call_deferred("start", process_packets)
 
-func _process(delta):
-	if client.get_available_packet_count() > 0:
-		var packet := client.get_packet()
-		process_packet(packet)
+func process_packets():
+	while true:
+		if client.get_available_packet_count() > 0:
+			var packet := client.get_packet()
+			process_packet(packet)
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -341,10 +345,10 @@ func process_decoded_packet() -> void:
 		PacketType.CONNECTED:
 			current_id = packet_data.decode_u16(0)
 			print("Connected on id: ", current_id)
-			pingTimer.start(5)
-			emit_signal("connected")
+			pingTimer.call_deferred("start", 5)
+			call_deferred("emit_signal", "connected")
 		PacketType.NOT_CONNECTED:
-			emit_signal("not_connected")
+			call_deferred("emit_signal", "not_connected")
 		PacketType.ASSIGNED_TO_SESSION:
 			var _session_id := packet_data.decode_u16(0)
 			var _client_id := packet_data.decode_u16(2)
@@ -362,9 +366,9 @@ func process_decoded_packet() -> void:
 					secondary_id = _client_id
 				_:
 					return
-			emit_signal("assigned_to_session", _client_id, client_type)
+			call_deferred("emit_signal", "assigned_to_session", _client_id, client_type)
 		PacketType.COULD_NOT_MAKE_SESSION:
-			emit_signal("could_not_create_session")
+			call_deferred("emit_signal", "could_not_create_session")
 		PacketType.SET_READY:
 			var _session_id := packet_data.decode_u16(0)
 			var _client_id := packet_data.decode_u16(2)
@@ -380,10 +384,10 @@ func process_decoded_packet() -> void:
 			elif _client_type == ClientType.SECONDARY:
 				secondary_ready = ready
 			
-			emit_signal("set_ready", _client_type, ready)
+			call_deferred("emit_signal", "set_ready", _client_type, ready)
 		PacketType.COULD_NOT_ASSIGN_TO_SESSION:
 			var _session_id := packet_data.decode_u16(0)
-			emit_signal("could_not_assign_to_session", _session_id)
+			call_deferred("emit_signal", "could_not_assign_to_session", _session_id)
 		PacketType.SESSION_LEAVE_STATUS:
 			var _session_id := packet_data.decode_u16(0)
 			var _client_id := packet_data.decode_u16(2)
@@ -405,17 +409,17 @@ func process_decoded_packet() -> void:
 						main_id = current_id
 						main_ready = false
 						session_role = ClientType.MAIN
-						emit_signal("became_main")
+						call_deferred("emit_signal", "became_main")
 				elif _client_id == secondary_id:
 					reset_secondary()
 				started_game = false
-				emit_signal("session_leave_status", _client_id, left)
+				call_deferred("emit_signal", "session_leave_status", _client_id, left)
 		PacketType.GAME_STARTED:
 			var _session_id := packet_data.decode_u16(0)
 			
 			if session_id == _session_id:
 				started_game = true
-				emit_signal("game_started")
+				call_deferred("emit_signal", "game_started")
 		PacketType.INFORM_BALL_POS:
 			ball_pos = packet_data.decode_var(0)
 			ball_dir = packet_data.decode_var(12)
@@ -424,11 +428,11 @@ func process_decoded_packet() -> void:
 			enemy_pos = packet_data.decode_var(2)
 			enemy_dir = packet_data.decode_var(14)
 		PacketType.DISCONNECTED:
-			pingTimer.stop()
+			pingTimer.call_deferred("stop")
 			current_id = -1
 			current_ready = false
 			print("Disconnected")
-			emit_signal("disconnected")
+			call_deferred("emit_signal", "disconnected")
 
 func alive_timeout() -> void:
 	send_im_alive()

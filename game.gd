@@ -6,12 +6,16 @@ signal resume_game()
 var lose_time = 3
 var side_to_resume := 0
 
+@onready
+var tree = get_tree()
+
 func _ready() -> void:
 	Networking.connect("session_leave_status", _on_session_leave_status)
 
 func _input(event):
 	if event.is_action("ui_cancel"):
-		get_tree().quit()
+		Networking.leave_session()
+		tree.change_scene_to_file("res://menu.tscn")
 
 func _on_lose(side):
 	lose_time = 3
@@ -49,4 +53,4 @@ func _on_music_finished():
 
 func _on_session_leave_status(client_id, left) -> void:
 	Networking.leave_session()
-	get_tree().change_scene_to_file("res://menu.tscn")
+	tree.change_scene_to_file("res://menu.tscn")

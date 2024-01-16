@@ -198,6 +198,9 @@ layout_mode = 2
 layout_mode = 2
 text = "CLOSE"
 
+[node name="NotConnectedTimer" type="Timer" parent="."]
+one_shot = true
+
 [connection signal="pressed" from="Menu/VBoxContainer/CenterContainer/VBoxContainer/Join" to="." method="_on_connect_pressed"]
 [connection signal="pressed" from="Menu/VBoxContainer/CenterContainer/VBoxContainer/Host" to="." method="_on_host_pressed"]
 [connection signal="text_changed" from="Menu/VBoxContainer/MarginContainer/VBoxContainer/HBoxContainer/IPEdit" to="." method="_on_ip_edit_text_changed"]
@@ -205,3 +208,4 @@ text = "CLOSE"
 [connection signal="pressed" from="JoinMenu/MarginContainer/VBoxContainer/JoinBtn" to="." method="_on_join_btn_pressed"]
 [connection signal="pressed" from="JoinMenu/MarginContainer/VBoxContainer/BackBtn" to="." method="_on_back_btn_pressed"]
 [connection signal="pressed" from="Errors/VBoxContainer/CloseErrorMsg" to="." method="_on_close_error_msg_pressed"]
+[connection signal="timeout" from="NotConnectedTimer" to="." method="_on_not_connected_timer_timeout"]

@@ -6,6 +6,9 @@ var lobby_scene: PackedScene
 var IPRegEx = RegEx.new()
 var action := "none"
 
+@onready
+var tree = get_tree()
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	IPRegEx.compile("^\\d{0,3}\\.\\d{0,3}\\.\\d{0,3}\\.\\d{0,3}$")
@@ -19,6 +22,7 @@ func _ready():
 
 
 func _on_connect_pressed():
+	$NotConnectedTimer.start()
 	action = "join"
 	if not Networking.is_connected_to_server():
 		set_btns_disabled(true)
@@ -27,6 +31,7 @@ func _on_connect_pressed():
 
 
 func _on_host_pressed():
+	$NotConnectedTimer.start()
 	action = "host"
 	if not Networking.is_connected_to_server():
 		set_btns_disabled(true)
@@ -41,11 +46,12 @@ func set_btns_disabled(state) -> void:
 
 @onready var old_ip: String = %IPEdit.text
 func _on_ip_edit_text_changed(new_text):
-	if IPRegEx.search(new_text):
-		Networking.ip = new_text
-		old_ip = new_text
-	else:
-		%IPEdit.text = old_ip
+	Networking.ip = new_text
+	#if IPRegEx.search(new_text):
+		#Networking.ip = new_text
+		#old_ip = new_text
+	#else:
+		#%IPEdit.text = old_ip
 
 
 @onready var old_port: String = %PortEdit.text
@@ -68,7 +74,7 @@ func _on_not_connected() -> void:
 	print("NOT_CONNECTED")
 
 func _on_assigned_to_session(client_id: int, role: int) -> void:
-	get_tree().change_scene_to_packed(lobby_scene)
+	tree.change_scene_to_packed(lobby_scene)
 
 func _on_could_not_create_session() -> void:
 	%ErrorMsg.text = "Could not create session"
@@ -88,3 +94,8 @@ func _on_could_not_assign_to_session(session_id: int) -> void:
 
 func _on_close_error_msg_pressed():
 	%Errors.visible = false
+
+
+func _on_not_connected_timer_timeout():
+	set_btns_disabled(false)
+	print("Could not establish connection")

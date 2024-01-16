@@ -18,3 +18,7 @@ shape = SubResource("RectangleShape2D_hd574")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.1, 1)
 texture = ExtResource("1_nvh08")
+
+[node name="NetworkTimer" type="Timer" parent="."]
+
+[connection signal="timeout" from="NetworkTimer" to="." method="_on_network_timer_timeout"]
