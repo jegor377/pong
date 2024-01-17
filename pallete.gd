@@ -15,7 +15,7 @@ var initial_x = position.x
 
 var can_do_network := true
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if Networking.session_role == side:
 		var direction = Input.get_axis("ui_up", "ui_down")
 		if direction and (Input.is_action_pressed("ui_up") or Input.is_action_pressed("ui_down")):

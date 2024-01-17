@@ -23,8 +23,8 @@ func set_as_noone() -> void:
 func update_label() -> void:
 	$Label.text = player_name + " " + role
 	
-func set_ready(ready: bool) -> void:
-	if ready:
+func set_ready(is_ready: bool) -> void:
+	if is_ready:
 		$VBoxContainer/Icon.enable()
 	else:
 		$VBoxContainer/Icon.disable()

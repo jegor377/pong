@@ -92,16 +92,17 @@ var read_amount := 0
 var pingTimer := Timer.new()
 
 var thread: Thread = Thread.new()
+var active := true
 
 func _ready():
 	client = PacketPeerUDP.new()
 	add_child(pingTimer)
 	pingTimer.one_shot = false
 	pingTimer.connect("timeout", alive_timeout)
-	thread.call_deferred("start", process_packets)
+	thread.call_deferred("start", process_packets, Thread.PRIORITY_HIGH)
 
 func process_packets():
-	while true:
+	while active:
 		if client.get_available_packet_count() > 0:
 			var packet := client.get_packet()
 			process_packet(packet)
@@ -110,12 +111,13 @@ func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if is_connected_to_server():
 			disconnect_from_server()
+			active = false
+			thread.wait_to_finish()
 
 
 func process_packet(packet: PackedByteArray) -> void:
 	var i := 0
-	var packet_start := 0
-	var tmp_packet: PackedByteArray
+	var tmp_packet := PackedByteArray([])
 	while i < packet.size():
 		match current_decode_step:
 			PackedDecodeStep.PREAMBULE:
@@ -372,19 +374,19 @@ func process_decoded_packet() -> void:
 		PacketType.SET_READY:
 			var _session_id := packet_data.decode_u16(0)
 			var _client_id := packet_data.decode_u16(2)
-			var ready = packet_data.decode_u8(4) == 1
+			var is_ready = packet_data.decode_u8(4) == 1
 			
 			if _client_id == current_id:
-				current_ready = ready
+				current_ready = is_ready
 			
-			var _client_type := client_type(_client_id)
+			var _client_type := get_client_type(_client_id)
 			
 			if _client_type == ClientType.MAIN:
-				main_ready = ready
+				main_ready = is_ready
 			elif _client_type == ClientType.SECONDARY:
-				secondary_ready = ready
+				secondary_ready = is_ready
 			
-			call_deferred("emit_signal", "set_ready", _client_type, ready)
+			call_deferred("emit_signal", "set_ready", _client_type, is_ready)
 		PacketType.COULD_NOT_ASSIGN_TO_SESSION:
 			var _session_id := packet_data.decode_u16(0)
 			call_deferred("emit_signal", "could_not_assign_to_session", _session_id)
@@ -437,7 +439,7 @@ func process_decoded_packet() -> void:
 func alive_timeout() -> void:
 	send_im_alive()
 
-func client_type(client_id) -> ClientType:
+func get_client_type(client_id) -> ClientType:
 	if client_id == main_id:
 		return ClientType.MAIN
 	elif client_id == secondary_id:
@@ -451,10 +453,10 @@ func is_in_session() -> bool:
 	return session_id != -1
 
 func check_connected() -> bool:
-	var connected := is_connected_to_server()
-	if not connected:
+	var _is_connected := is_connected_to_server()
+	if not _is_connected:
 		print("Client not connected")
-	return connected
+	return _is_connected
 
 func check_in_session() -> bool:
 	var in_session := is_in_session()

@@ -63,6 +63,7 @@ func _on_port_edit_text_changed(new_text: String):
 		%PortEdit.text = old_port
 
 func _on_connected() -> void:
+	$NotConnectedTimer.stop()
 	set_btns_disabled(false)
 	if action == "join":
 		pass
@@ -73,7 +74,7 @@ func _on_not_connected() -> void:
 	set_btns_disabled(false)
 	print("NOT_CONNECTED")
 
-func _on_assigned_to_session(client_id: int, role: int) -> void:
+func _on_assigned_to_session(_client_id: int, _role: int) -> void:
 	tree.change_scene_to_packed(lobby_scene)
 
 func _on_could_not_create_session() -> void:
@@ -97,5 +98,6 @@ func _on_close_error_msg_pressed():
 
 
 func _on_not_connected_timer_timeout():
-	set_btns_disabled(false)
-	print("Could not establish connection")
+	if not Networking.is_connected_to_server():
+		set_btns_disabled(false)
+		print("Could not establish connection")

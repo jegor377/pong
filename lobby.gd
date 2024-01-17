@@ -1,5 +1,8 @@
 extends Control
 
+@onready
+var tree := get_tree()
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	%LobbyName.text = "Lobby #" + str(Networking.session_id)
@@ -19,7 +22,7 @@ func _ready():
 
 
 func _on_disconnected() -> void:
-	get_tree().change_scene_to_file("res://menu.tscn")
+	tree.change_scene_to_file("res://menu.tscn")
 
 
 func _on_back_btn_pressed():
@@ -29,7 +32,7 @@ func _on_back_btn_pressed():
 func _on_session_leave_status(client_id, left) -> void:
 	if client_id == Networking.current_id and left:
 		print("Left session")
-		get_tree().change_scene_to_file("res://menu.tscn")
+		tree.change_scene_to_file("res://menu.tscn")
 	else:
 		%RightPlayer.set_as_noone()
 
@@ -55,4 +58,4 @@ func _on_ready_btn_pressed():
 	Networking.set_readiness(not current_readiness)
 
 func _on_game_started() -> void:
-	get_tree().change_scene_to_file("res://game.tscn")
+	tree.change_scene_to_file("res://game.tscn")

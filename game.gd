@@ -51,6 +51,6 @@ func _on_resume_game():
 func _on_music_finished():
 	$music.play()
 
-func _on_session_leave_status(client_id, left) -> void:
+func _on_session_leave_status(_client_id, _left) -> void:
 	Networking.leave_session()
 	tree.change_scene_to_file("res://menu.tscn")

@@ -11,7 +11,7 @@ var initial_pos = position
 
 var can_do_network := true
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if can_do_network:
 		if Networking.is_main():
 			Networking.set_ball_pos(position, dir)
