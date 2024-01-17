@@ -448,6 +448,8 @@ func process_decoded_packet() -> void:
 			
 			if session_id == _session_id:
 				started_game = true
+				main_score = 0
+				secondary_score = 0
 				call_deferred("emit_signal", "game_started")
 		PacketType.INFORM_BALL_POS:
 			ball_pos = packet_data.decode_var(0)

@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-
 const SPEED = 500.0
 const AI_SLOW = 100
 
@@ -35,3 +34,4 @@ func _physics_process(_delta):
 
 func _on_network_timer_timeout():
 	can_do_network = true
+

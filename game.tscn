@@ -31,6 +31,7 @@ stream_1/stream = ExtResource("7_fongm")
 stream_1/weight = 1.0
 
 [node name="Node2D" type="Node2D"]
+process_mode = 3
 script = ExtResource("1_fu3a5")
 
 [node name="RightPoints" type="Label" parent="."]
@@ -68,17 +69,21 @@ vertical_alignment = 1
 
 [node name="LeftPallet" parent="." instance=ExtResource("1_bd4gg")]
 unique_name_in_owner = true
+process_mode = 1
 position = Vector2(30, 324)
 side = 0
 bounce_offset = Vector2(-50, 0)
 
 [node name="RightPallet" parent="." instance=ExtResource("1_bd4gg")]
 unique_name_in_owner = true
+process_mode = 1
 position = Vector2(1122, 324)
 side = 1
 bounce_offset = Vector2(50, 0)
 
 [node name="Ball" parent="." instance=ExtResource("2_hrder")]
+unique_name_in_owner = true
+process_mode = 1
 position = Vector2(578, 325)
 
 [node name="Wall" type="StaticBody2D" parent="."]
@@ -106,6 +111,7 @@ position = Vector2(-294, 324)
 side = 1
 
 [node name="music" type="AudioStreamPlayer" parent="."]
+process_mode = 3
 stream = SubResource("AudioStreamRandomizer_2eae3")
 volume_db = -20.0
 
@@ -113,10 +119,76 @@ volume_db = -20.0
 one_shot = true
 
 [node name="LoseSFX" type="AudioStreamPlayer" parent="."]
+process_mode = 3
 stream = ExtResource("7_rqaxl")
 bus = &"SFX"
+
+[node name="WonLayer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+visible = false
+
+[node name="Control" type="Control" parent="WonLayer"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="WonLayer/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -188.0
+offset_top = -82.0
+offset_right = 188.0
+offset_bottom = 47.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="WonLayer/Control/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="WonLayer/Control/PanelContainer/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="WonLabel" type="Label" parent="WonLayer/Control/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "YOU WON"
+horizontal_alignment = 1
+
+[node name="LostLabel" type="Label" parent="WonLayer/Control/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "YOU LOST"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="WonLayer/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Ready" type="Button" parent="WonLayer/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "READY"
+
+[node name="MainMenu" type="Button" parent="WonLayer/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "LEAVE"
 
 [connection signal="lose" from="." to="." method="_on_lose"]
 [connection signal="resume_game" from="." to="." method="_on_resume_game"]
 [connection signal="finished" from="music" to="." method="_on_music_finished"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="pressed" from="WonLayer/Control/PanelContainer/MarginContainer/VBoxContainer/Ready" to="." method="_on_ready_pressed"]
+[connection signal="pressed" from="WonLayer/Control/PanelContainer/MarginContainer/VBoxContainer/MainMenu" to="." method="_on_main_menu_pressed"]
