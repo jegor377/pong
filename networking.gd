@@ -9,6 +9,8 @@ signal could_not_assign_to_session(session_id)
 signal session_leave_status(client_id, left)
 signal became_main()
 signal game_started()
+signal point_scored()
+signal player_won(client_type)
 signal disconnected()
 
 var ip: String
@@ -17,6 +19,10 @@ var port: String
 var main_id: int
 var secondary_id: int
 var current_id: int = -1
+
+var main_score := 0
+var secondary_score := 0
+var client_type_scored := ClientType.NONE
 
 var current_ready := false
 var main_ready := false
@@ -57,7 +63,8 @@ enum PacketType {
 	INFORM_BALL_POS = 15,
 	SET_PLAYER_POS = 16,
 	INFORM_PLAYER_POS = 17,
-	INFORM_POINT_SCORED = 19,
+	SAY_POINT_SCORED = 18,
+	POINT_SCORED = 19,
 	INFORM_WON = 20,
 	IM_ALIVE = 21,
 	DISCONNECTED = 22
@@ -334,6 +341,26 @@ func set_pallete_pos(pos: Vector2, dir: Vector2) -> void:
 		return
 	client.put_packet(create_set_pallete_pos(pos, dir))
 
+func create_say_point_scored_packet(client_id: int) -> PackedByteArray:
+	var data = PackedByteArray([0, 0, 0, 0])
+	data.encode_u16(0, session_id)
+	data.encode_u16(2, client_id)
+	return create_packet(PacketType.SAY_POINT_SCORED, data)
+
+func say_point_scored(client_type: ClientType) -> void:
+	match client_type:
+		ClientType.MAIN:
+			main_score += 1
+			client_type_scored = client_type
+			call_deferred("emit_signal", "point_scored")
+		ClientType.SECONDARY:
+			secondary_score += 1
+			client_type_scored = client_type
+			call_deferred("emit_signal", "point_scored")
+		
+	var client_id := get_client_id_by_type(client_type)
+	client.put_packet(create_say_point_scored_packet(client_id))
+
 func client_type_name(client_type) -> String:
 	if client_type == ClientType.MAIN:
 		return 'main'
@@ -429,6 +456,14 @@ func process_decoded_packet() -> void:
 			var _client_id = packet_data.decode_u16(0)
 			enemy_pos = packet_data.decode_var(2)
 			enemy_dir = packet_data.decode_var(14)
+		PacketType.POINT_SCORED:
+			main_score = packet_data.decode_u32(2)
+			secondary_score = packet_data.decode_u32(6)
+			client_type_scored = get_client_type(packet_data.decode_u16(10))
+			call_deferred("emit_signal", "point_scored")
+		PacketType.INFORM_WON:
+			var _client_id = packet_data.decode_u16(2)
+			call_deferred("emit_signal", "player_won", get_client_type(_client_id))
 		PacketType.DISCONNECTED:
 			pingTimer.call_deferred("stop")
 			current_id = -1
@@ -445,6 +480,14 @@ func get_client_type(client_id) -> ClientType:
 	elif client_id == secondary_id:
 		return ClientType.SECONDARY
 	return ClientType.NONE
+
+func get_client_id_by_type(client_type: ClientType) -> int:
+	match client_type:
+		ClientType.MAIN:
+			return main_id
+		ClientType.SECONDARY:
+			return secondary_id
+	return -1
 
 func is_connected_to_server() -> bool:
 	return current_id != -1
@@ -467,6 +510,8 @@ func check_in_session() -> bool:
 func reset_session() -> void:
 	session_id = -1
 	session_role = ClientType.NONE
+	main_score = 0
+	secondary_score = 0
 
 func reset_main() -> void:
 	main_id = -1

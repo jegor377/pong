@@ -11,6 +11,7 @@ var tree = get_tree()
 
 func _ready() -> void:
 	Networking.connect("session_leave_status", _on_session_leave_status)
+	Networking.connect("point_scored", _on_point_scored)
 
 func _input(event):
 	if event.is_action("ui_cancel"):
@@ -18,18 +19,29 @@ func _input(event):
 		tree.change_scene_to_file("res://menu.tscn")
 
 func _on_lose(side):
+	if Networking.session_role == Networking.ClientType.MAIN:
+		match int(side):
+			-1:
+				Networking.say_point_scored(Networking.ClientType.MAIN)
+			1:
+				Networking.say_point_scored(Networking.ClientType.SECONDARY)
+
+func _on_point_scored() -> void:
 	lose_time = 3
 	$WaitTime.text = str(lose_time)
 	$WaitTime.show()
+	var side: float
+	match Networking.client_type_scored:
+		Networking.ClientType.MAIN:
+			side = -1
+		Networking.ClientType.SECONDARY:
+			side = 1
 	side_to_resume = side
 	start_lose_timer()
 	$LoseSFX.play()
 	
-	if side_to_resume == 1: # right won
-		$RightPoints.text = str(int($RightPoints.text) + 1)
-	elif side_to_resume == -1: # left won
-		$LeftPoints.text = str(int($LeftPoints.text) + 1)
-
+	$LeftPoints.text = str(Networking.main_score)
+	$RightPoints.text = str(Networking.secondary_score)
 
 func start_lose_timer() -> void:
 	$Timer.start()
